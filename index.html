@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spray Calc App</title>
+    <!-- Pico.css CDN for minimal, elegant design -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <style>
+        body {
+            background-color: var(--background-color, #1a1a1a);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        article,
+        button,
+        input[type="text"],
+        input[type="number"] {
+            border-radius: 12px;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .chemical-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            border: 1px solid var(--border-color, #333);
+        }
+        
+        .chemical-card h5, .chemical-card .qty {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--h1-color);
+            margin: 0;
+            padding: 0;
+        }
+        .chemical-card h5 {
+            padding-top: 1rem;
+        }
+        
+        .chemical-card .qty-unit {
+            font-size: 1.5rem;
+            font-weight: normal;
+        }
+
+        .chemical-card .info-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .chemical-card .info-row span {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .chemical-card .footer {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-chemical-form {
+            padding: 1.5rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .summary-flex {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .summary-flex div {
+            padding: 0.5rem 1rem;
+            text-align: center;
+        }
+
+        .summary-flex div p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .summary-flex div h6 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .summary-flex div.highlight h6 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .summary-bottom-row {
+            flex-basis: 100%;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        @media (min-width: 600px) {
+            .summary-flex div h6 {
+                font-size: 1.5rem;
+            }
+            .summary-flex div.highlight h6 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <hgroup>
+            <h1>Spray Calc App</h1>
+            <p class="text-center">Fitz Farming</p>
+        </hgroup>
+
+        <!-- Setup Card -->
+        <article>
+            <h2>Setup</h2>
+            <form id="setup-form">
+                <div class="grid">
+                    <div>
+                        <label for="tankSize">Tank Size (L)</label>
+                        <input type="number" id="tankSize" name="tankSize" value="11000">
+                    </div>
+                    <div>
+                        <label for="paddock">Paddock</label>
+                        <input type="text" id="paddock" name="paddock" value="WH1">
+                    </div>
+                    <div>
+                        <label for="area">Area (Ha)</label>
+                        <input type="number" id="area" name="area" value="100">
+                    </div>
+                    <div>
+                        <label for="completedHa">Completed Ha</label>
+                        <input type="number" id="completedHa" name="completedHa" value="2">
+                    </div>
+                    <div>
+                        <label for="waterRate">Water Rate (L/Ha)</label>
+                        <input type="number" id="waterRate" name="waterRate" value="100">
+                    </div>
+                </div>
+            </form>
+        </article>
+
+        <!-- Summary Card -->
+        <article>
+            <h2>Summary</h2>
+            <div class="summary-flex">
+                <div>
+                    <p>Tanks</p>
+                    <h6 id="summary-tanks">0</h6>
+                </div>
+                <div>
+                    <p>Job Area (Ha)</p>
+                    <h6 id="summary-job-area">0</h6>
+                </div>
+                <div>
+                    <p>Area per Tank (Ha)</p>
+                    <h6 id="summary-area-per-tank">0</h6>
+                </div>
+                <div>
+                    <p>Total Water (L)</p>
+                    <h6 id="summary-total">0</h6>
+                </div>
+                <div class="summary-bottom-row">
+                    <div class="highlight">
+                        <p>L per Tank</p>
+                        <h6 id="summary-l-per-tank">0</h6>
+                    </div>
+                    <div class="highlight">
+                        <p>Batch (L)</p>
+                        <h6 id="summary-batch">0</h6>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Chemicals Section -->
+        <article>
+            <h2>Chemicals</h2>
+            <div id="chemicals-container" class="card-container">
+                <!-- Chemical cards will be dynamically inserted here -->
+            </div>
+        </article>
+
+        <!-- Add New Chemical Form -->
+        <article>
+            <h2>Add New Chemical</h2>
+            <form id="add-chemical-form" class="add-chemical-form">
+                <div>
+                    <label for="chemicalName">Chemical</label>
+                    <input type="text" id="chemicalName" name="chemicalName" placeholder="e.g., Basta" required>
+                </div>
+                <div class="flex-row" style="justify-content: space-around;">
+                    <div class="flex-row">
+                        <input type="checkbox" id="isPesticide" name="isPesticide">
+                        <label for="isPesticide">P</label>
+                    </div>
+                    <div class="flex-row">
+                        <input type="checkbox" id="isLiquid" name="isLiquid">
+                        <label for="isLiquid">L</label>
+                    </div>
+                    <div class="flex-row hidden" id="shuttle-container">
+                        <input type="checkbox" id="isShuttle" name="isShuttle">
+                        <label for="isShuttle">S</label>
+                    </div>
+                </div>
+                <div>
+                    <label for="rate">Rate</label>
+                    <input type="number" id="rate" name="rate" min="0" step="any" required>
+                </div>
+                <button type="submit" class="contrast">Add Chemical</button>
+            </form>
+        </article>
+    </main>
+
+    <script>
+        // UI Elements
+        const setupForm = document.getElementById('setup-form');
+        const chemicalsContainer = document.getElementById('chemicals-container');
+        const addChemicalForm = document.getElementById('add-chemical-form');
+        const summaryTanks = document.getElementById('summary-tanks');
+        const summaryJobArea = document.getElementById('summary-job-area');
+        const summaryAreaPerTank = document.getElementById('summary-area-per-tank');
+        const summaryLPerTank = document.getElementById('summary-l-per-tank');
+        const summaryTotal = document.getElementById('summary-total');
+        const summaryBatch = document.getElementById('summary-batch');
+        const isLiquidCheckbox = document.getElementById('isLiquid');
+        const shuttleContainer = document.getElementById('shuttle-container');
+        const isShuttleCheckbox = document.getElementById('isShuttle');
+
+
+        let setupData = {
+            tankSize: 11000,
+            paddock: 'WH1',
+            area: 100,
+            completedHa: 2,
+            waterRate: 100
+        };
+
+        let chemicals = [];
+
+        // Master function to refresh all UI and update the URL
+        function updateUI() {
+            calculateSummary();
+            updateSummary();
+            renderChemicals();
+            updateUrl();
+        }
+        
+        function updateUrl() {
+            const dataToEncode = {
+                setupData,
+                chemicals
+            };
+            const encodedData = encodeURIComponent(JSON.stringify(dataToEncode));
+            window.location.hash = `data=${encodedData}`;
+        }
+
+        // Function to load data from URL hash
+        function loadData() {
+            const hash = window.location.hash.substring(1); // Remove the '#'
+            if (hash.startsWith('data=')) {
+                const dataParam = hash.substring(5); // Remove 'data='
+                try {
+                    const decodedData = decodeURIComponent(dataParam);
+                    const parsedData = JSON.parse(decodedData);
+                    setupData = parsedData.setupData;
+                    chemicals = parsedData.chemicals;
+
+                    // Update form values from loaded data
+                    for (const key in setupData) {
+                        if (setupForm.elements[key]) {
+                            setupForm.elements[key].value = setupData[key];
+                        }
+                    }
+                    console.log("Data loaded from URL hash");
+                } catch (e) {
+                    console.error("Could not load data from URL hash", e);
+                }
+            }
+        }
+
+        // Render the chemical cards
+        function renderChemicals() {
+            chemicalsContainer.innerHTML = '';
+            chemicals.forEach((chem, index) => {
+                const article = document.createElement('article');
+                article.classList.add('chemical-card');
+                article.dataset.index = index;
+
+                // Determine QTY and unit based on chemical properties
+                let qtyDisplay = '';
+                let unit = '';
+                if (chem.isShuttle) {
+                    qtyDisplay = (chem.quantityPerTank * 0.9).toFixed(0);
+                    unit = 'mm';
+                } else {
+                    qtyDisplay = chem.quantityPerTank.toFixed(2);
+                    unit = chem.isLiquid ? 'L' : 'KG';
+                }
+
+                // Conditionally display P, L, and S
+                const pSpan = chem.isPesticide ? '<span>P</span>' : '';
+                const lSpan = chem.isLiquid ? '<span>L</span>' : '';
+                const sSpan = chem.isShuttle ? '<span>S</span>' : '';
+
+                article.innerHTML = `
+                    <header><h5>${chem.chemicalName}</h5></header>
+                    <p class="qty">${qtyDisplay} <span class="qty-unit">${unit}</span></p>
+                    <div class="info-row">
+                        ${pSpan}
+                        ${lSpan}
+                        ${sSpan}
+                    </div>
+                    <div style="text-align:center;">Rate: ${chem.rate}</div>
+                    <footer class="footer">
+                        <button class="secondary outline" onclick="moveChemicalUp(${index})" ${index === 0 ? 'disabled' : ''} aria-label="Move chemical up" style="padding: 0.5rem;">&#9650;</button>
+                        <button class="secondary outline" onclick="deleteChemical(${index})">Remove</button>
+                        <button class="secondary outline" onclick="moveChemicalDown(${index})" ${index === chemicals.length - 1 ? 'disabled' : ''} aria-label="Move chemical down" style="padding: 0.5rem;">&#9660;</button>
+                    </footer>
+                `;
+                chemicalsContainer.appendChild(article);
+            });
+        }
+
+        // Perform calculations and update the summary UI
+        function updateSummary() {
+            const summary = calculateSummary();
+            summaryTanks.textContent = summary.tanks;
+            summaryJobArea.textContent = summary.jobArea;
+            summaryAreaPerTank.textContent = summary.areaPerTank.toFixed(1);
+            summaryLPerTank.textContent = summary.litersPerTank.toFixed(0);
+            summaryTotal.textContent = summary.totalWater;
+            summaryBatch.textContent = summary.batchWater.toFixed(0);
+        }
+
+        // Main calculation logic
+        function calculateSummary() {
+            const tankSize = parseFloat(setupData.tankSize) || 0;
+            const area = parseFloat(setupData.area) || 0;
+            const completedHa = parseFloat(setupData.completedHa) || 0;
+            const waterRate = parseFloat(setupData.waterRate) || 0;
+
+            const jobArea = area - completedHa;
+            let areaPerTank = (tankSize / waterRate);
+            
+            // Area per tank should not be more than the job area
+            if (areaPerTank > jobArea) {
+                areaPerTank = jobArea;
+            }
+            
+            const tanks = Math.ceil(jobArea / areaPerTank);
+            const totalWater = jobArea * waterRate;
+            
+            // Calculate quantities per tank for each chemical and total liquid volume
+            let totalLiquidChemicalVolume = 0;
+            chemicals.forEach(chem => {
+                let quantityPerTank;
+                if (!chem.isPesticide) {
+                    // If not a pesticide, rate is a percentage of tank volume
+                    quantityPerTank = (chem.rate / 100) * tankSize;
+                } else {
+                    // Standard rate in L/Ha or KG/Ha
+                    quantityPerTank = chem.rate * areaPerTank;
+                }
+                
+                chem.quantityPerTank = quantityPerTank; // Store on the object for rendering
+
+                if (chem.isLiquid) {
+                    totalLiquidChemicalVolume += quantityPerTank;
+                }
+            });
+            
+            const litersPerTank = areaPerTank * waterRate;
+            
+            // Calculate batch water based on total water needed for the tank
+            let batchWater = litersPerTank - totalLiquidChemicalVolume;
+            if (batchWater < 0) {
+                batchWater = 0;
+            }
+
+            return {
+                tanks: tanks,
+                jobArea: jobArea,
+                areaPerTank: areaPerTank,
+                litersPerTank: litersPerTank,
+                totalWater: totalWater,
+                batchWater: batchWater
+            };
+        }
+
+        // Add a new chemical
+        function addChemical(e) {
+            e.preventDefault();
+            const form = e.target;
+            const chemicalData = {
+                chemicalName: form.chemicalName.value,
+                isPesticide: form.isPesticide.checked,
+                isLiquid: form.isLiquid.checked,
+                isShuttle: form.isShuttle.checked,
+                rate: parseFloat(form.rate.value)
+            };
+
+            chemicals.push(chemicalData);
+            updateUI();
+            form.reset();
+            // This is the fix: explicitly hide the shuttle container after the form is reset.
+            shuttleContainer.classList.add('hidden');
+        }
+
+        // Delete a chemical
+        function deleteChemical(index) {
+            chemicals.splice(index, 1);
+            updateUI();
+        }
+
+        // Reorder functions
+        function moveChemicalUp(index) {
+            if (index > 0) {
+                const [movedItem] = chemicals.splice(index, 1);
+                chemicals.splice(index - 1, 0, movedItem);
+                updateUI();
+            }
+        }
+
+        function moveChemicalDown(index) {
+            if (index < chemicals.length - 1) {
+                const [movedItem] = chemicals.splice(index, 1);
+                chemicals.splice(index + 1, 0, movedItem);
+                updateUI();
+            }
+        }
+        
+        // Event listeners
+        setupForm.addEventListener('input', (e) => {
+            setupData[e.target.name] = e.target.value;
+            updateUI();
+        });
+        addChemicalForm.addEventListener('submit', addChemical);
+
+        // Conditional visibility for shuttle
+        isLiquidCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                shuttleContainer.classList.remove('hidden');
+            } else {
+                isShuttleCheckbox.checked = false; // Uncheck shuttle if liquid is unchecked
+                shuttleContainer.classList.add('hidden');
+            }
+        });
+
+        // Initialize the app on window load
+        window.onload = () => {
+            loadData();
+            updateUI();
+        };
+
+    </script>
+</body>
+</html>
