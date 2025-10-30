@@ -7,8 +7,11 @@
     <!-- Pico.css CDN for minimal, elegant design -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
     <style>
+        /* Responsive and Aesthetic Styling (Pico.css Dark Theme) */
         body {
             background-color: var(--background-color, #1a1a1a);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
         }
 
         .container {
@@ -20,8 +23,10 @@
         article,
         button,
         input[type="text"],
-        input[type="number"] {
+        input[type="number"],
+        select { /* Added select */
             border-radius: 12px;
+            transition: all 0.2s;
         }
 
         .card-container {
@@ -39,21 +44,29 @@
             border: 1px solid var(--border-color, #333);
         }
         
-        .chemical-card h5, .chemical-card .qty {
+        .chemical-card h5 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .chemical-card .qty {
             font-size: 2.5rem;
             font-weight: bold;
             text-align: center;
             color: var(--h1-color);
             margin: 0;
             padding: 0;
+            color: var(--primary);
         }
-        .chemical-card h5 {
-            padding-top: 1rem;
-        }
-        
+
         .chemical-card .qty-unit {
             font-size: 1.5rem;
             font-weight: normal;
+            opacity: 0.8;
+            color: var(--h1-color);
         }
 
         .chemical-card .info-row {
@@ -66,7 +79,11 @@
 
         .chemical-card .info-row span {
             font-weight: bold;
-            color: var(--secondary);
+            color: var(--primary-inverse);
+            background: var(--primary);
+            padding: 0 0.5rem;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
         }
 
         .chemical-card .footer {
@@ -74,6 +91,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 1rem 1rem;
         }
 
         .add-chemical-form {
@@ -90,6 +108,7 @@
             color: var(--secondary);
             text-align: center;
         }
+        h1 { color: var(--primary); }
 
         .flex-row {
             display: flex;
@@ -113,7 +132,7 @@
         .summary-flex div p {
             margin: 0;
             font-size: 0.8rem;
-            color: #ccc;
+            color: var(--secondary);
         }
 
         .summary-flex div h6 {
@@ -124,7 +143,7 @@
 
         .summary-flex div.highlight h6 {
             font-size: 2rem;
-            color: var(--primary);
+            color: var(--primary-hover);
         }
 
         .summary-bottom-row {
@@ -133,6 +152,7 @@
             justify-content: space-around;
             flex-wrap: wrap;
             gap: 1rem;
+            margin-top: 1rem;
         }
         
         .text-center {
@@ -141,6 +161,10 @@
         
         .hidden {
             display: none;
+        }
+        .secondary.outline:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         @media (min-width: 600px) {
@@ -156,13 +180,13 @@
 <body>
     <main class="container">
         <hgroup>
-            <h1>Spray Calc App</h1>
-            <p class="text-center">Fitz Farming</p>
+            <h1>Spray Batch Calculator</h1>
+            <p class="text-center">Fitz Farming - Compressed Link Ready</p>
         </hgroup>
 
         <!-- Setup Card -->
         <article>
-            <h2>Setup</h2>
+            <h2>Setup Parameters</h2>
             <form id="setup-form">
                 <div class="grid">
                     <div>
@@ -170,15 +194,33 @@
                         <input type="number" id="tankSize" name="tankSize" value="11000">
                     </div>
                     <div>
-                        <label for="paddock">Paddock</label>
-                        <input type="text" id="paddock" name="paddock" value="WH1">
+                        <label for="paddock">Paddock Name</label>
+                        <select id="paddock" name="paddock">
+                            <option value="WH1">WH1</option>
+                            <option value="WH2">WH2</option>
+                            <option value="Ram">Ram</option>
+                            <option value="W Lane">W Lane</option>
+                            <option value="E Lane">E Lane</option>
+                            <option value="NSS">NSS</option>
+                            <option value="SSS">SSS</option>
+                            <option value="WSS">WSS</option>
+                            <option value="3 22">3 22</option>
+                            <option value="Heaths">Heaths</option>
+                            <option value="Cottage">Cottage</option>
+                            <option value="B Hill">B Hill</option>
+                            <option value="Reserve">Reserve</option>
+                            <option value="WPN">WPN</option>
+                            <option value="WPS">WPS</option>
+                            <option value="Davies E">Davies E</option>
+                            <option value="Davies W">Davies W</option>
+                        </select>
                     </div>
                     <div>
-                        <label for="area">Area (Ha)</label>
+                        <label for="area">Total Area (Ha)</label>
                         <input type="number" id="area" name="area" value="100">
                     </div>
                     <div>
-                        <label for="completedHa">Completed Ha</label>
+                        <label for="completedHa">Completed (Ha)</label>
                         <input type="number" id="completedHa" name="completedHa" value="2">
                     </div>
                     <div>
@@ -194,7 +236,7 @@
             <h2>Summary</h2>
             <div class="summary-flex">
                 <div>
-                    <p>Tanks</p>
+                    <p>Tanks Required</p>
                     <h6 id="summary-tanks">0</h6>
                 </div>
                 <div>
@@ -211,11 +253,11 @@
                 </div>
                 <div class="summary-bottom-row">
                     <div class="highlight">
-                        <p>L per Tank</p>
+                        <p>Total L per Tank</p>
                         <h6 id="summary-l-per-tank">0</h6>
                     </div>
                     <div class="highlight">
-                        <p>Batch (L)</p>
+                        <p>Water to Add (L)</p>
                         <h6 id="summary-batch">0</h6>
                     </div>
                 </div>
@@ -224,9 +266,9 @@
 
         <!-- Chemicals Section -->
         <article>
-            <h2>Chemicals</h2>
+            <h2>Chemicals Required (Per Tank)</h2>
             <div id="chemicals-container" class="card-container">
-                <!-- Chemical cards will be dynamically inserted here -->
+                <p class="text-center" style="opacity: 0.7;">Add chemicals below to see the batch mix.</p>
             </div>
         </article>
 
@@ -235,27 +277,28 @@
             <h2>Add New Chemical</h2>
             <form id="add-chemical-form" class="add-chemical-form">
                 <div>
-                    <label for="chemicalName">Chemical</label>
+                    <label for="chemicalName">Chemical Name</label>
                     <input type="text" id="chemicalName" name="chemicalName" placeholder="e.g., Basta" required>
                 </div>
-                <div class="flex-row" style="justify-content: space-around;">
+                <div class="grid">
                     <div class="flex-row">
                         <input type="checkbox" id="isPesticide" name="isPesticide">
-                        <label for="isPesticide">P</label>
+                        <label for="isPesticide">Pesticide (P)</label>
                     </div>
                     <div class="flex-row">
                         <input type="checkbox" id="isLiquid" name="isLiquid">
-                        <label for="isLiquid">L</label>
+                        <label for="isLiquid">Liquid (L)</label>
                     </div>
                     <div class="flex-row hidden" id="shuttle-container">
                         <input type="checkbox" id="isShuttle" name="isShuttle">
-                        <label for="isShuttle">S</label>
+                        <label for="isShuttle">Shuttle Rate (S)</label>
+                    </div>
+                    <div>
+                        <label for="rate">Rate (L/Ha, KG/Ha, or %)</label>
+                        <input type="number" id="rate" name="rate" min="0" step="any" required>
                     </div>
                 </div>
-                <div>
-                    <label for="rate">Rate</label>
-                    <input type="number" id="rate" name="rate" min="0" step="any" required>
-                </div>
+                
                 <button type="submit" class="contrast">Add Chemical</button>
             </form>
         </article>
@@ -279,7 +322,7 @@
 
         let setupData = {
             tankSize: 11000,
-            paddock: 'WH1',
+            paddock: 'WH1', // Default value
             area: 100,
             completedHa: 2,
             waterRate: 100
@@ -287,6 +330,104 @@
 
         let chemicals = [];
 
+        // --- URL COMPRESSION / DECOMPRESSION LOGIC ---
+        
+        // Key map for setup data: FullName -> ShortCode
+        const SETUP_KEYS = {
+            tankSize: 'TS',
+            paddock: 'P',
+            area: 'A',
+            completedHa: 'CH',
+            waterRate: 'WR'
+        };
+
+        // Key map for chemical data: FullName -> ShortCode
+        // 'quantityPerTank' is intentionally excluded as it's a calculated value
+        const CHEM_KEYS = {
+            chemicalName: 'N',
+            isPesticide: 'PP',
+            isLiquid: 'L',
+            isShuttle: 'S',
+            rate: 'R'
+        };
+
+        // Helper to swap the key/value pairs of an object for decompression
+        const invertKeys = (obj) =>
+            Object.fromEntries(Object.entries(obj).map(([key, value]) => [value, key]));
+        
+        const INVERTED_SETUP_KEYS = invertKeys(SETUP_KEYS);
+        const INVERTED_CHEM_KEYS = invertKeys(CHEM_KEYS);
+
+
+        /**
+         * Compresses the input data structure for the URL.
+         * 1. Renames long keys to short codes (e.g., 'tankSize' -> 'TS').
+         * 2. Removes calculated values.
+         * 3. Encodes booleans as 1 (true) or omits them (false).
+         * @returns {string} A JSON-stringified, compressed object.
+         */
+        function compressData(data) {
+            const compressedSetup = {};
+            for (const [longKey, shortKey] of Object.entries(SETUP_KEYS)) {
+                compressedSetup[shortKey] = data.setupData[longKey];
+            }
+
+            const compressedChemicals = data.chemicals.map(chem => {
+                const compressedChem = {};
+                for (const [longKey, shortKey] of Object.entries(CHEM_KEYS)) {
+                    // Only include a boolean if it's true, saving space (e.g., no 'PP:false')
+                    if (typeof chem[longKey] === 'boolean' && chem[longKey] === true) {
+                        compressedChem[shortKey] = 1; // Use 1 for true to save characters
+                    } else if (typeof chem[longKey] !== 'boolean') {
+                        compressedChem[shortKey] = chem[longKey];
+                    }
+                }
+                return compressedChem;
+            });
+
+            // Use short keys 'S' and 'C' for top-level objects
+            return JSON.stringify({ S: compressedSetup, C: compressedChemicals });
+        }
+
+        /**
+         * Decompresses the data from the URL hash.
+         * @param {string} compressedJsonString The compressed JSON string from the URL.
+         * @returns {object} The full, uncompressed data structure.
+         */
+        function decompressData(compressedJsonString) {
+            const parsed = JSON.parse(compressedJsonString);
+            const decompressedData = {
+                setupData: {},
+                chemicals: []
+            };
+
+            // Decompress Setup Data
+            const compressedSetup = parsed.S || {};
+            for (const [shortKey, longKey] of Object.entries(INVERTED_SETUP_KEYS)) {
+                // Use the short key to pull the value, falling back to the default if not present
+                decompressedData.setupData[longKey] = compressedSetup[shortKey] !== undefined
+                    ? compressedSetup[shortKey]
+                    : setupData[longKey]; // Fallback to initial default value
+            }
+
+            // Decompress Chemical Data
+            const compressedChemicals = parsed.C || [];
+            decompressedData.chemicals = compressedChemicals.map(compressedChem => {
+                const chem = {};
+                for (const [shortKey, longKey] of Object.entries(INVERTED_CHEM_KEYS)) {
+                    if (shortKey === 'PP' || shortKey === 'L' || shortKey === 'S') {
+                        // Decompress booleans (if short key is 1, it's true, otherwise false)
+                        chem[longKey] = compressedChem[shortKey] === 1;
+                    } else if (compressedChem[shortKey] !== undefined) {
+                        chem[longKey] = compressedChem[shortKey];
+                    }
+                }
+                return chem;
+            });
+            
+            return decompressedData;
+        }
+        
         // Master function to refresh all UI and update the URL
         function updateUI() {
             calculateSummary();
@@ -295,23 +436,40 @@
             updateUrl();
         }
         
+        // Function to save data to the URL hash using compression
         function updateUrl() {
+            // 1. Prepare data for encoding (excluding calculated properties like quantityPerTank)
             const dataToEncode = {
                 setupData,
-                chemicals
+                chemicals: chemicals.map(c => {
+                    const { quantityPerTank, ...rest } = c;
+                    return rest;
+                })
             };
-            const encodedData = encodeURIComponent(JSON.stringify(dataToEncode));
-            window.location.hash = `data=${encodedData}`;
+
+            // 2. Compress the data structure
+            const compressedData = compressData(dataToEncode);
+
+            // 3. Use btoa (Base64) to create a compact, URL-safe string
+            const encodedData = btoa(compressedData); 
+
+            // 4. Update the hash using the short key 'd='
+            window.location.hash = `d=${encodedData}`; 
         }
 
-        // Function to load data from URL hash
+        // Function to load data from URL hash using decompression
         function loadData() {
             const hash = window.location.hash.substring(1); // Remove the '#'
-            if (hash.startsWith('data=')) {
-                const dataParam = hash.substring(5); // Remove 'data='
+            
+            // Check for the new short key 'd='
+            if (hash.startsWith('d=')) { 
+                const dataParam = hash.substring(2); // Remove 'd='
                 try {
-                    const decodedData = decodeURIComponent(dataParam);
-                    const parsedData = JSON.parse(decodedData);
+                    // Use atob for Base64 decoding
+                    const decompressedJson = atob(dataParam);
+                    const parsedData = decompressData(decompressedJson);
+                    
+                    // Update global variables
                     setupData = parsedData.setupData;
                     chemicals = parsedData.chemicals;
 
@@ -321,9 +479,9 @@
                             setupForm.elements[key].value = setupData[key];
                         }
                     }
-                    console.log("Data loaded from URL hash");
+                    console.log("Data loaded and decompressed from URL hash");
                 } catch (e) {
-                    console.error("Could not load data from URL hash", e);
+                    console.error("Could not load or decompress data from URL hash", e);
                 }
             }
         }
@@ -331,6 +489,11 @@
         // Render the chemical cards
         function renderChemicals() {
             chemicalsContainer.innerHTML = '';
+            if (chemicals.length === 0) {
+                 chemicalsContainer.innerHTML = '<p class="text-center" style="opacity: 0.7; grid-column: 1 / -1;">Add chemicals below to see the batch mix.</p>';
+                 return;
+            }
+
             chemicals.forEach((chem, index) => {
                 const article = document.createElement('article');
                 article.classList.add('chemical-card');
@@ -360,11 +523,11 @@
                         ${lSpan}
                         ${sSpan}
                     </div>
-                    <div style="text-align:center;">Rate: ${chem.rate}</div>
+                    <div style="text-align:center;">Rate: ${chem.rate} ${chem.isPesticide ? (chem.isLiquid ? 'L/Ha' : 'KG/Ha') : '%'}</div>
                     <footer class="footer">
-                        <button class="secondary outline" onclick="moveChemicalUp(${index})" ${index === 0 ? 'disabled' : ''} aria-label="Move chemical up" style="padding: 0.5rem;">&#9650;</button>
+                        <button class="secondary outline" onclick="moveChemicalUp(${index})" ${index === 0 ? 'disabled' : ''} aria-label="Move chemical up">&#9650;</button>
                         <button class="secondary outline" onclick="deleteChemical(${index})">Remove</button>
-                        <button class="secondary outline" onclick="moveChemicalDown(${index})" ${index === chemicals.length - 1 ? 'disabled' : ''} aria-label="Move chemical down" style="padding: 0.5rem;">&#9660;</button>
+                        <button class="secondary outline" onclick="moveChemicalDown(${index})" ${index === chemicals.length - 1 ? 'disabled' : ''} aria-label="Move chemical down">&#9660;</button>
                     </footer>
                 `;
                 chemicalsContainer.appendChild(article);
@@ -378,40 +541,41 @@
             summaryJobArea.textContent = summary.jobArea;
             summaryAreaPerTank.textContent = summary.areaPerTank.toFixed(1);
             summaryLPerTank.textContent = summary.litersPerTank.toFixed(0);
-            summaryTotal.textContent = summary.totalWater;
+            summaryTotal.textContent = summary.totalWater.toFixed(0);
             summaryBatch.textContent = summary.batchWater.toFixed(0);
         }
 
         // Main calculation logic
         function calculateSummary() {
+            // Ensure inputs are treated as numbers
             const tankSize = parseFloat(setupData.tankSize) || 0;
             const area = parseFloat(setupData.area) || 0;
             const completedHa = parseFloat(setupData.completedHa) || 0;
             const waterRate = parseFloat(setupData.waterRate) || 0;
 
-            const jobArea = area - completedHa;
+            const jobArea = Math.max(0, area - completedHa);
             
             // Calculate the total area a full tank can cover based on the water rate.
             const fullTankArea = (tankSize / waterRate);
             
             // Calculate the number of tanks needed for the remaining job area.
-            let tanks = Math.ceil(jobArea / fullTankArea);
+            let tanks = 0;
+            if (jobArea > 0 && waterRate > 0) {
+                tanks = Math.ceil(jobArea / fullTankArea);
+            }
 
-            // Handle the case where the job area is less than a full tank's capacity.
+            // If only a partial area remains, but less than 1 tank is needed, set tanks to 1
             if (tanks === 0 && jobArea > 0) {
                 tanks = 1;
             } else if (jobArea === 0) {
                 tanks = 0;
             }
 
-            // --- THE FIX ---
             // Calculate the actual area per tank based on the number of tanks needed.
-            // This is the value that should be displayed.
-            const areaPerTank = jobArea / tanks;
+            const areaPerTank = tanks > 0 ? jobArea / tanks : 0;
             
             // Calculate the actual water volume per tank based on the new area per tank.
             const litersPerTank = areaPerTank * waterRate;
-            // --- END OF FIX ---
 
             const totalWater = jobArea * waterRate;
             
@@ -420,7 +584,7 @@
             chemicals.forEach(chem => {
                 let quantityPerTank;
                 if (!chem.isPesticide) {
-                    // If not a pesticide, rate is a percentage of tank volume
+                    // If not a pesticide, rate is a percentage of total tank water volume
                     quantityPerTank = (chem.rate / 100) * litersPerTank;
                 } else {
                     // Standard rate in L/Ha or KG/Ha
@@ -434,7 +598,7 @@
                 }
             });
             
-            // Calculate batch water based on total water needed for the tank
+            // Calculate batch water (Water only)
             let batchWater = litersPerTank - totalLiquidChemicalVolume;
             if (batchWater < 0) {
                 batchWater = 0;
@@ -442,7 +606,7 @@
 
             return {
                 tanks: tanks,
-                jobArea: jobArea,
+                jobArea: jobArea.toFixed(1),
                 areaPerTank: areaPerTank,
                 litersPerTank: litersPerTank,
                 totalWater: totalWater,
@@ -455,28 +619,30 @@
             e.preventDefault();
             const form = e.target;
             const chemicalData = {
-                chemicalName: form.chemicalName.value,
+                chemicalName: form.chemicalName.value.trim(),
                 isPesticide: form.isPesticide.checked,
                 isLiquid: form.isLiquid.checked,
                 isShuttle: form.isShuttle.checked,
                 rate: parseFloat(form.rate.value)
             };
-
-            chemicals.push(chemicalData);
-            updateUI();
-            form.reset();
-            // This is the fix: explicitly hide the shuttle container after the form is reset.
-            shuttleContainer.classList.add('hidden');
+            
+            if (chemicalData.chemicalName && !isNaN(chemicalData.rate)) {
+                chemicals.push(chemicalData);
+                updateUI();
+                form.reset();
+                // Explicitly hide the shuttle container after the form is reset
+                shuttleContainer.classList.add('hidden');
+            }
         }
 
-        // Delete a chemical
-        function deleteChemical(index) {
+        // Delete a chemical (made global for inline use)
+        window.deleteChemical = function(index) {
             chemicals.splice(index, 1);
             updateUI();
         }
 
-        // Reorder functions
-        function moveChemicalUp(index) {
+        // Reorder functions (made global for inline use)
+        window.moveChemicalUp = function(index) {
             if (index > 0) {
                 const [movedItem] = chemicals.splice(index, 1);
                 chemicals.splice(index - 1, 0, movedItem);
@@ -484,7 +650,7 @@
             }
         }
 
-        function moveChemicalDown(index) {
+        window.moveChemicalDown = function(index) {
             if (index < chemicals.length - 1) {
                 const [movedItem] = chemicals.splice(index, 1);
                 chemicals.splice(index + 1, 0, movedItem);
